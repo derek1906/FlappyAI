@@ -9,7 +9,7 @@ class FlappyGame:
 		self.width = width
 		self.height = height
 		self.start_height = height / 2
-		self.pipe_start_offset = 1000
+		self.pipe_start_offset = 300
 		self.pipe_distance = 300
 		self.pipe_space = 100
 		self.pipe_count = 5
@@ -21,9 +21,9 @@ class FlappyGame:
 			# init pygame
 			pygame.init()
 			# init pygame font
-			#print("Initializing font... This might take a while.")
-			#pygame.font.init()
-			#self.game_font = pygame.font.SysFont("Arial", 30)
+			print("Initializing font... This might take a while.")
+			pygame.font.init()
+			self.game_font = pygame.font.SysFont("Arial", 30)
 			# init pygame clock
 			self.game_clock = pygame.time.Clock()
 			# set window dimensions
@@ -120,6 +120,17 @@ class FlappyGame:
 		#score_text = self.game_font.render(str(self.score), False, (255, 255, 255))
 		#score_text_width, score_text_height = self.game_font.size(str(self.score))
 		#self.game_screen.blit(score_text, (self.width / 2 - score_text_width / 2, 5))
+		
+		def get_state():
+			next_pipe = self.get_next_pipe()
+			return (
+				int(min(next_pipe.x - self.progress, 300 + 5)) / 5,
+				int(self.bird.y - next_pipe.space_y) / 5,
+				int(self.bird.velocity) / 5
+			)
+
+		state_text = self.game_font.render(str(get_state()), False, (255, 255, 255))
+		self.game_screen.blit(state_text, (0, self.height - 30))
 
 		pygame.display.flip()
 

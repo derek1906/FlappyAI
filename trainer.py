@@ -30,7 +30,7 @@ class Trainer:
 	def sigint_handler(self, signal, frame):
 		self.sigint = True
 
-	def __init__(self, model, alpha, gamma, epsilon):
+	def __init__(self, model, alpha=0, gamma=0, epsilon=0):
 		# Initialize signal handler
 		signal.signal(signal.SIGINT, self.sigint_handler)
 		self.sigint = False
@@ -92,6 +92,16 @@ class Trainer:
 				"epsilon": self.epsilon
 			}
 			pickle.dump(save_obj, f)
+
+	def evaluate(self):
+		print("Evaluation started.")
+		while True:
+			if self.sigint:
+				break
+
+			state = self.model.get_state()
+			action = self.f_function(state)
+			self.model.step(action)
 
 	def f_function(self, state):
 		'''
