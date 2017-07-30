@@ -132,8 +132,6 @@ class Trainer:
 		'''
 		action_selected = None
 
-		# Your Code Goes Here!
-		
 		if random.random() < self.epsilon:
 			# Pick a random action
 			action_selected = random.choice(self.model.get_actions())
@@ -144,6 +142,11 @@ class Trainer:
 			
 
 class ModelInterface:
+	'''
+	Interface used by the trainer. Every method needs to be overrode.
+	'''
+
+
 	'''
 	Step function. Returns reward value.
 	'''
