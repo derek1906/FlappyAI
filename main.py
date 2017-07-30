@@ -51,8 +51,8 @@ class FlappyInterface(ModelInterface):
 		states = []
 		'''
 		States:
-		- Horizontal distance between bird and nearest pipe (0 to 300 / 5 or 300+)
-		- Vertical distance between bird and nearest pipe (-height / 5 to height / 5)
+		- Horizontal distance between bird and nearest pipe (0 to 300 / 10 or 300+)
+		- Vertical distance between bird and nearest pipe (-height / 10 to height / 10)
 		- Bird velocity (-10 / 5 to 20 / 5)
 		'''
 		for horizontal_distance in xrange(0, (300 / 10 + 1) + 1):
