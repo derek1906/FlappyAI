@@ -31,6 +31,12 @@ def better_max(lst, func):
 		"value": max_val
 	}
 
+def abstract(method):
+	def raise_error(*args, **kwargs):
+		raise NotImplementedError("Abstract methods cannot be called. Did you forget to override \"%s\"?" % method.__name__)
+	return raise_error
+
+
 class Trainer:
 	'''
 	Q Learner
@@ -150,25 +156,29 @@ class ModelInterface:
 	'''
 	Step function. Returns reward value.
 	'''
+	@abstract
 	def step(self, action):
-		return ModelInterface.REQUEST_TERMINATE
+		pass
 
 	'''
 	Get available actions.
 	'''
+	@abstract
 	def get_actions(self):
-		return [0]
+		pass
 
 	'''
 	Initialize states
 	'''
+	@abstract
 	def get_all_states(self):
-		return {}
+		pass
 
 	'''
 	Get current state
 	'''
+	@abstract
 	def get_state(self):
-		return ()
+		pass
 
 	REQUEST_TERMINATE = {}

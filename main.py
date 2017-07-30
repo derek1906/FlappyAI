@@ -22,15 +22,16 @@ class FlappyInterface(ModelInterface):
 				game.events.add(event_name, self.event_handler)
 		
 	def step(self, action):
-		if action == FlappyGame.QUIT:
-			# request trainer to terminate
-			return ModelInterface.REQUEST_TERMINATE
-
 		self.prev_state = self.get_state()
 
 		sum_reward = 0
 		for i in xrange(0, 10):
 			status = self.game.step(action if i == 0 else FlappyGame.NONE)
+			
+			if status == FlappyGame.QUIT:
+				# request trainer to terminate
+				return ModelInterface.REQUEST_TERMINATE
+
 			rewards = {
 				FlappyGame.NORMAL: 0,
 				FlappyGame.PASSED: 300,

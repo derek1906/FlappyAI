@@ -25,14 +25,14 @@ class FlappyGame:
 		self.events = EventManager()
 
 		if interactive_mode:
-			# init pygame
-			pygame.init()
 			# init pygame font
 			print("Initializing font... This might take a while.")
 			pygame.font.init()
 			self.game_font = pygame.font.SysFont("Arial", 30)
 			# init pygame clock
 			self.game_clock = pygame.time.Clock()
+			# init pygame display
+			pygame.display.init()
 			# set window dimensions
 			self.game_screen = pygame.display.set_mode((width, height))
 			# set window title
