@@ -14,6 +14,21 @@ FlappyAI contains these main parts:
 - `ModelInterface` - Interface for the model used by the agent
 - `main.py` - Part where everything connects together
 
+## Dependencies
+FlappyAI is written in Python. The required libraries include:
+
+- `pygame` - Required for the graphics
+- Standard Python2 libraries
+
+## Extending FlappyAI to Other Games
+Simply create a new interface and inherits from `ModelInterface` for your simulator.
+
+    from qlearning import Trainer, ModelInterface
+    class MyInterface(ModelInterface):
+	# interacts with your simulator
+    agent = Trainer(MyInterface())
+    agent.train()
+
 ## How to Run
 Type
 
@@ -35,7 +50,7 @@ Assuming the game size is 640x480. Parameters considered by the AI are the follo
 
 Resulting in a total of 43456 states.
 
-The 2D is discretized into 10x10 tiles, therefore the framerate of the AI must be reduced by a factor of 10 (i.e. game is running in 60fps and the agent will be running in 6fps.)
+The 2D space is discretized into 10x10 tiles, therefore the framerate of the AI must be reduced by a factor of 10 (i.e. game is running in 60fps and the agent will be running in 6fps.)
 
 ### Q-Learning Background
 Q-Learning is a simple reinforcement learning algorithm that has three parameters:
