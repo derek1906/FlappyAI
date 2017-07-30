@@ -47,6 +47,7 @@ class FlappyGame:
 		self.next_pipe_x_location = self.pipe_start_offset + self.pipe_count * self.pipe_distance
 		self.bird = Bird(self.height / 2, self.gravity)
 		self.pipes = deque()
+		self.bird_path = deque([(self.progress, self.bird.y)], camera_offset / self.horizontal_speed)
 
 		# generate pipes
 		for i in xrange(0, self.pipe_count):
@@ -73,6 +74,7 @@ class FlappyGame:
 
 		# step forward
 		self.bird.step(action)
+		self.bird_path.append((self.progress, self.bird.y))
 		self.progress += self.horizontal_speed
 		if self.bird.y < 0:
 			self.bird.y = 0
@@ -129,6 +131,15 @@ class FlappyGame:
 				(screen_x_location, pipe.space_y + self.pipe_space / 2),
 				(screen_x_location, self.height)
 			)
+
+		# draw bird path
+		path = [(camera_offset - (self.progress - progress), y) for (progress, y) in self.bird_path]
+		pygame.draw.lines(
+			self.game_screen,
+			(100, 100, 100),
+			False,
+			path
+		)
 
 		# draw score
 		score_text = self.game_font.render(str(self.score), False, (255, 255, 255))
