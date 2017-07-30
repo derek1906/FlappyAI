@@ -44,6 +44,10 @@ for help. FlappyAI has three modes:
 - train - Start the training process.
 - test - Let AI plays the game
 
+FlappyAI automatically looks for `qtable.p` in the current directory. It will create a new one if it cannot find one. This file is used to store the trained Q-table (KNAWLEDGE!).
+
+During the training mode, press Ctrl+C to stop and store the Q-table to the file.
+
 ## Technical Details
 ### State Space
 Assuming the game size is 640x480. Parameters considered by the AI are the following:
