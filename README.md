@@ -23,11 +23,15 @@ FlappyAI is written in Python. The required libraries include:
 ## Extending FlappyAI to Other Games
 Simply create a new interface and inherits from `ModelInterface` for your simulator.
 
-    from qlearning import Trainer, ModelInterface
-    class MyInterface(ModelInterface):
-	# interacts with your simulator
-    agent = Trainer(MyInterface())
-    agent.train()
+```python
+from qlearning import Trainer, ModelInterface
+
+class MyInterface(ModelInterface):
+    # interacts with your simulator
+
+agent = Trainer(MyInterface())  # creates a new agent with your interface
+agent.train()                   # starts the training
+```
 
 ## How to Run
 Type
