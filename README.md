@@ -4,7 +4,7 @@ Q-Learning with a Flappy Bird simulator.
 ![FlappyAI Demo](/demo.gif)
 
 ## Why?
-FlappyAI is an AI that uses simple Q-Learning trained on a custom Flappy Bird simulator. It is mainly created for learning purposes. If you are looking for Q-Learning libraries that are more efficient and does not mind the steep learning curve, try TensorFlow instead.
+FlappyAI is an AI that uses simple Q-Learning trained on a custom Flappy Bird simulator. It is mainly created for learning purposes. If you are looking for Q-Learning libraries that are more efficient and does not mind the steep learning curve, try [TensorFlow](https://www.tensorflow.org/) instead.
 
 ## Structure
 FlappyAI contains these main parts:
@@ -44,7 +44,7 @@ for help. FlappyAI has three modes:
 - train - Start the training process.
 - test - Let AI plays the game
 
-FlappyAI automatically looks for `qtable.p` in the current directory. It will create a new one if it cannot find one. This file is used to store the trained Q-table (KNAWLEDGE!).
+FlappyAI automatically looks for `qtable.p` in the current directory. It will create a new one if it cannot find one. This file is used to store the trained Q-table (KNAWLEDGE!). The Q-table file included in the repository is already trained, but if you want to retrain the agent, simply remove or rename the file.
 
 During the training mode, press Ctrl+C to stop and store the Q-table to the file.
 
