@@ -9,7 +9,9 @@ from datetime import datetime
 
 qtable_filename = "qtable.p"
 
-
+'''
+A better argmax function
+'''
 def better_max(lst, func):
 	if len(lst) == 0:
 		return None
@@ -29,8 +31,10 @@ def better_max(lst, func):
 		"value": max_val
 	}
 
-
 class Trainer:
+	'''
+	Q Learner
+	'''
 	def sigint_handler(self, signal, frame):
 		self.sigint = True
 
@@ -82,6 +86,10 @@ class Trainer:
 			reward = self.model.step(action)
 			new_state = self.model.get_state()
 
+			if reward is ModelInterface.REQUEST_TERMINATE:
+				# terminate
+				break
+
 			q = self.qtable[(action, state)]
 			max_q_prime = better_max(self.model.get_actions(), lambda action: self.qtable[(action, new_state)])["value"]
 
@@ -111,7 +119,11 @@ class Trainer:
 
 			state = self.model.get_state()
 			action = self.f_function(state)
-			self.model.step(action)
+			reward = self.model.step(action)
+
+			if reward is ModelInterface.REQUEST_TERMINATE:
+				# terminate
+				break
 
 	def f_function(self, state):
 		'''
@@ -136,7 +148,7 @@ class ModelInterface:
 	Step function. Returns reward value.
 	'''
 	def step(self, action):
-		return 0
+		return ModelInterface.REQUEST_TERMINATE
 
 	'''
 	Get available actions.
@@ -155,3 +167,5 @@ class ModelInterface:
 	'''
 	def get_state(self):
 		return ()
+
+	REQUEST_TERMINATE = {}

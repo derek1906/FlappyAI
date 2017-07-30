@@ -4,33 +4,45 @@ import os
 import sys
 import pickle
 from flappy import FlappyGame
-from trainer import Trainer, ModelInterface
+from qlearning import Trainer, ModelInterface
 
 qtable_filename = "qtable.p"
 
+# interface for Trainer
 class FlappyInterface(ModelInterface):
-	def __init__(self, game):
+	def __init__(self, game, log_events=False):
 		self.game = game
+		self.prev_state = None
 		self.prev_action = 0
 		self.prev_reward = 0
 		game.external_draw = self.render
+
+		if log_events:
+			for event_name in FlappyGame.get_events():
+				game.events.add(event_name, self.event_handler)
 		
 	def step(self, action):
-		status = self.game.step(action)
-		rewards = {
-			FlappyGame.NORMAL: 0,
-			FlappyGame.PASSED: 300,
-			FlappyGame.COLLIDED: -300,
-			FlappyGame.TOOFAR: -10,
-			FlappyGame.QUIT: 0
-		}
-		reward = rewards[status]
-		if status == FlappyGame.TOOFAR:
-			reward = -abs(self.game.bird.y - self.game.get_next_pipe().space_y)
+		if action == FlappyGame.QUIT:
+			# request trainer to terminate
+			return ModelInterface.REQUEST_TERMINATE
+
+		self.prev_state = self.get_state()
+
+		sum_reward = 0
+		for i in xrange(0, 10):
+			status = self.game.step(action if i == 0 else FlappyGame.NONE)
+			rewards = {
+				FlappyGame.NORMAL: 0,
+				FlappyGame.PASSED: 300,
+				FlappyGame.COLLIDED: -300,
+				FlappyGame.QUIT: 0	# should not reach
+			}
+			reward = rewards[status]
+			sum_reward += reward
 
 		self.prev_action = action
-		self.prev_reward = reward
-		return reward
+		self.prev_reward = sum_reward
+		return sum_reward
 
 	def get_actions(self):
 		return self.game.get_actions()
@@ -52,17 +64,23 @@ class FlappyInterface(ModelInterface):
 
 	def get_state(self):
 		next_pipe = self.game.get_next_pipe()
+		distance_to_next_pipe = min(next_pipe.x - self.game.progress, 300 + 10)
+		distance_to_pipe_space = 0 if (distance_to_next_pipe > 300) else (self.game.bird.y - next_pipe.space_y)
 		return (
-			int(min(next_pipe.x - self.game.progress, 300 + 10)) / 10,
-			int(self.game.bird.y - next_pipe.space_y) / 10,
+			int(distance_to_next_pipe) / 10,
+			int(distance_to_pipe_space) / 10,
 			int(self.game.bird.velocity) / 5
 		)
 
 	def render(self, game):
-		state_text = game.game_font.render(str(self.get_state()), False, (255, 255, 255))
-		game.game_screen.blit(state_text, (0, game.height - 30))
+		state_text = game.game_font.render(str(self.prev_state), False, (255, 255, 255))
 		reward_text = game.game_font.render("action: %d reward: %d" % (self.prev_action, self.prev_reward), False, (255, 255, 255))
+		game.game_screen.blit(state_text, (0, game.height - 30))
 		game.game_screen.blit(reward_text, (0, game.height - 60))
+
+	def event_handler(self, event_name, *values):
+		if event_name == FlappyGame.GAME_ENDED:
+			print("Score: %d" % values[0]["final_score"])
 
 def interactive(game):
 	# interactive mode
@@ -80,7 +98,7 @@ def train(game, alpha, gamma, epsilon):
 
 def test(game):
 	# testing mode
-	trainer = Trainer(FlappyInterface(game))
+	trainer = Trainer(FlappyInterface(game, True))
 	trainer.evaluate()
 
 def main():

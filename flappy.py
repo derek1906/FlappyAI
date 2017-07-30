@@ -1,15 +1,19 @@
 import pygame
 from collections import deque
 import random
+from events import EventManager
 
 camera_offset = 100
 
 class FlappyGame:
+	'''
+	Flappy Bird emulator
+	'''
 	def __init__(self, width, height, interactive_mode=False):
 		self.width = width
 		self.height = height
 		self.start_height = height / 2
-		self.pipe_start_offset = 300
+		self.pipe_start_offset = 1000
 		self.pipe_distance = 300
 		self.pipe_space = 100
 		self.pipe_count = 5
@@ -17,6 +21,8 @@ class FlappyGame:
 		self.gravity = 0.5
 		self.interactive_mode = interactive_mode
 		self.external_draw = None
+
+		self.events = EventManager()
 
 		if interactive_mode:
 			# init pygame
@@ -45,6 +51,13 @@ class FlappyGame:
 		# generate pipes
 		for i in xrange(0, self.pipe_count):
 			self.pipes.append(Pipe.generate_pipe(self.pipe_start_offset + i * self.pipe_distance, self.height))
+
+	def restart(self):
+		self.events.trigger(FlappyGame.GAME_ENDED, {
+			"final_score": self.score,
+			"final_progress": self.progress
+		})
+		self.reset()
 
 	def add_new_pipe(self):
 		self.pipes.append(Pipe.generate_pipe(self.next_pipe_x_location, self.height))
@@ -78,24 +91,20 @@ class FlappyGame:
 
 		# check collision
 		if self.bird.y >= self.height or self.bird.y <= 0:
-			# hit the group
-			self.reset()
+			# hit the ground
+			self.restart()
 			return FlappyGame.COLLIDED
 
 		upcoming_pipe = self.get_next_pipe()
 		if self.progress == upcoming_pipe.x:
 			if abs(self.bird.y - upcoming_pipe.space_y) > self.pipe_space / 2:
 				# collided
-				self.reset()
+				self.restart()
 				return FlappyGame.COLLIDED
 			else:
 				self.score += 1
 				# passed
 				return FlappyGame.PASSED
-		else:
-			if abs(self.bird.y - upcoming_pipe.space_y) > self.pipe_space / 2:
-				# too far
-				return FlappyGame.TOOFAR
 
 		return FlappyGame.NORMAL
 
@@ -142,10 +151,16 @@ class FlappyGame:
 	def get_actions():
 		return [FlappyGame.JUMP, FlappyGame.NONE]
 
+	@staticmethod
+	def get_events():
+		return [FlappyGame.GAME_ENDED]
+
 	# step return status
-	NORMAL, PASSED, COLLIDED, TOOFAR, QUIT = range(5)
+	NORMAL, PASSED, COLLIDED, QUIT = range(4)
 	# actions
 	NONE, JUMP = range(2)
+	# events
+	GAME_ENDED = 0
 
 
 class Bird:
