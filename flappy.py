@@ -74,10 +74,10 @@ class FlappyGame:
 		# render graphics
 		if self.interactive_mode:
 			self.render()
-			self.game_clock.tick(5)
+			self.game_clock.tick(60)
 
 		# check collision
-		if self.bird.y >= self.height:
+		if self.bird.y >= self.height or self.bird.y <= 0:
 			# hit the group
 			self.reset()
 			return FlappyGame.COLLIDED

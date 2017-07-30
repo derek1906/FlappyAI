@@ -64,6 +64,8 @@ class Trainer:
 				for action in model.get_actions():
 					self.qtable[(action, state)] = 0.0
 
+		print("Total discrete states: %d" % len(self.qtable))
+
 	def train(self):
 		print(u"Training started, using α=%.1f γ=%.1f ε=%.1f." % (self.alpha, self.gamma, self.epsilon))
 		while True:

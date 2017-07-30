@@ -20,13 +20,17 @@ class FlappyInterface(ModelInterface):
 		rewards = {
 			FlappyGame.NORMAL: 0,
 			FlappyGame.PASSED: 300,
-			FlappyGame.COLLIDED: -30,
+			FlappyGame.COLLIDED: -300,
 			FlappyGame.TOOFAR: -10,
 			FlappyGame.QUIT: 0
 		}
+		reward = rewards[status]
+		if status == FlappyGame.TOOFAR:
+			reward = -abs(self.game.bird.y - self.game.get_next_pipe().space_y)
+
 		self.prev_action = action
-		self.prev_reward = rewards[status]
-		return rewards[status]
+		self.prev_reward = reward
+		return reward
 
 	def get_actions(self):
 		return self.game.get_actions()
@@ -57,7 +61,7 @@ class FlappyInterface(ModelInterface):
 	def render(self, game):
 		state_text = game.game_font.render(str(self.get_state()), False, (255, 255, 255))
 		game.game_screen.blit(state_text, (0, game.height - 30))
-		reward_text = game.game_font.render("action: %d reward: %d" % (self.action, self.prev_reward), False, (255, 255, 255))
+		reward_text = game.game_font.render("action: %d reward: %d" % (self.prev_action, self.prev_reward), False, (255, 255, 255))
 		game.game_screen.blit(reward_text, (0, game.height - 60))
 
 def interactive(game):
