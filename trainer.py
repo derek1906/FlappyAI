@@ -1,7 +1,11 @@
+#!/usr/bin/python
+# -*- coding: utf8 -*-
+
 import signal
 import cPickle as pickle
 import os
 import random
+from datetime import datetime
 
 qtable_filename = "qtable.p"
 
@@ -50,9 +54,9 @@ class Trainer:
 				save_file = pickle.load(f)
 				self.qtable = save_file["qtable"]
 				self.train_count = save_file["train_count"]
-				self.alpha = save_file["alpha"]
-				self.gamma = save_file["gamma"]
-				self.epsilon = save_file["epsilon"]
+				#self.alpha = save_file["alpha"]
+				#self.gamma = save_file["gamma"]
+				#self.epsilon = save_file["epsilon"]
 		else:
 			# init Q table
 			print("Initializing states...")
@@ -61,15 +65,15 @@ class Trainer:
 					self.qtable[(action, state)] = 0.0
 
 	def train(self):
-		print("Training started.")
+		print(u"Training started, using α=%.1f γ=%.1f ε=%.1f." % (self.alpha, self.gamma, self.epsilon))
 		while True:
 			if self.sigint:
 				break
 
 			self.train_count += 1
 
-			if self.train_count % 100000 == 0:
-				print("Train #{}".format(self.train_count))
+			if self.train_count % 1000000 == 0:
+				print("[{}] Step #{}".format(str(datetime.now()), self.train_count))
 
 			state = self.model.get_state()
 			action = self.f_function(state)
@@ -95,6 +99,10 @@ class Trainer:
 
 	def evaluate(self):
 		print("Evaluation started.")
+
+		# disable exploration
+		self.epsilon = 0
+
 		while True:
 			if self.sigint:
 				break

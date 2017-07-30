@@ -16,6 +16,7 @@ class FlappyGame:
 		self.horizontal_speed = 5
 		self.gravity = 0.5
 		self.interactive_mode = interactive_mode
+		self.external_draw = None
 
 		if interactive_mode:
 			# init pygame
@@ -73,7 +74,7 @@ class FlappyGame:
 		# render graphics
 		if self.interactive_mode:
 			self.render()
-			self.game_clock.tick(60)
+			self.game_clock.tick(5)
 
 		# check collision
 		if self.bird.y >= self.height:
@@ -81,7 +82,7 @@ class FlappyGame:
 			self.reset()
 			return FlappyGame.COLLIDED
 
-		upcoming_pipe = self.pipes[0]
+		upcoming_pipe = self.get_next_pipe()
 		if self.progress == upcoming_pipe.x:
 			if abs(self.bird.y - upcoming_pipe.space_y) > self.pipe_space / 2:
 				# collided
@@ -91,6 +92,10 @@ class FlappyGame:
 				self.score += 1
 				# passed
 				return FlappyGame.PASSED
+		else:
+			if abs(self.bird.y - upcoming_pipe.space_y) > self.pipe_space / 2:
+				# too far
+				return FlappyGame.TOOFAR
 
 		return FlappyGame.NORMAL
 
@@ -117,20 +122,12 @@ class FlappyGame:
 			)
 
 		# draw score
-		#score_text = self.game_font.render(str(self.score), False, (255, 255, 255))
-		#score_text_width, score_text_height = self.game_font.size(str(self.score))
-		#self.game_screen.blit(score_text, (self.width / 2 - score_text_width / 2, 5))
+		score_text = self.game_font.render(str(self.score), False, (255, 255, 255))
+		score_text_width, score_text_height = self.game_font.size(str(self.score))
+		self.game_screen.blit(score_text, (self.width / 2 - score_text_width / 2, 5))
 		
-		def get_state():
-			next_pipe = self.get_next_pipe()
-			return (
-				int(min(next_pipe.x - self.progress, 300 + 5)) / 5,
-				int(self.bird.y - next_pipe.space_y) / 5,
-				int(self.bird.velocity) / 5
-			)
-
-		state_text = self.game_font.render(str(get_state()), False, (255, 255, 255))
-		self.game_screen.blit(state_text, (0, self.height - 30))
+		if self.external_draw != None:
+			self.external_draw(self)
 
 		pygame.display.flip()
 
@@ -143,10 +140,10 @@ class FlappyGame:
 
 	@staticmethod
 	def get_actions():
-		return [FlappyGame.NONE, FlappyGame.JUMP]
+		return [FlappyGame.JUMP, FlappyGame.NONE]
 
 	# step return status
-	NORMAL, PASSED, COLLIDED, QUIT = range(4)
+	NORMAL, PASSED, COLLIDED, TOOFAR, QUIT = range(5)
 	# actions
 	NONE, JUMP = range(2)
 
