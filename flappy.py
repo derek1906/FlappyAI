@@ -1,5 +1,6 @@
 import pygame
 from collections import deque
+import math
 import random
 from events import EventManager
 
@@ -16,7 +17,7 @@ class FlappyGame:
 		self.pipe_start_offset = 1000
 		self.pipe_distance = 300
 		self.pipe_space = 100
-		self.pipe_count = 5
+		self.pipe_count = int(math.ceil(float(self.width) / self.pipe_distance))
 		self.horizontal_speed = 5
 		self.gravity = 0.5
 		self.interactive_mode = interactive_mode
@@ -47,7 +48,9 @@ class FlappyGame:
 		self.next_pipe_x_location = self.pipe_start_offset + self.pipe_count * self.pipe_distance
 		self.bird = Bird(self.height / 2, self.gravity)
 		self.pipes = deque()
-		self.bird_path = deque([(self.progress, self.bird.y)], camera_offset / self.horizontal_speed)
+
+		if self.interactive_mode:
+			self.bird_path = deque([(self.progress, self.bird.y)], camera_offset / self.horizontal_speed)
 
 		# generate pipes
 		for i in xrange(0, self.pipe_count):
@@ -74,7 +77,9 @@ class FlappyGame:
 
 		# step forward
 		self.bird.step(action)
-		self.bird_path.append((self.progress, self.bird.y))
+		if self.interactive_mode:
+			# store path
+			self.bird_path.append((self.progress, self.bird.y))
 		self.progress += self.horizontal_speed
 		if self.bird.y < 0:
 			self.bird.y = 0

@@ -8,6 +8,8 @@ from qlearning import Trainer, ModelInterface
 
 qtable_filename = "qtable.p"
 
+discretize_size = 30
+
 # interface for Trainer
 class FlappyInterface(ModelInterface):
 	def __init__(self, game, log_events=False):
@@ -25,21 +27,25 @@ class FlappyInterface(ModelInterface):
 		self.prev_state = self.get_state()
 
 		sum_reward = 0
-		for i in xrange(0, 10):
+		for i in xrange(0, discretize_size / self.game.horizontal_speed):
 			status = self.game.step(action if i == 0 else FlappyGame.NONE)
-			
+
 			if status == FlappyGame.QUIT:
 				# request trainer to terminate
 				return ModelInterface.REQUEST_TERMINATE
 
 			rewards = {
 				FlappyGame.NORMAL: 0,
-				FlappyGame.PASSED: 300,
-				FlappyGame.COLLIDED: -300,
+				FlappyGame.PASSED: 100,
+				FlappyGame.COLLIDED: -100,
 				FlappyGame.QUIT: 0	# should not reach
 			}
 			reward = rewards[status]
 			sum_reward += reward
+
+			if status == FlappyGame.COLLIDED:
+				# restart game
+				break
 
 		self.prev_action = action
 		self.prev_reward = sum_reward
@@ -50,14 +56,15 @@ class FlappyInterface(ModelInterface):
 
 	def get_all_states(self):
 		states = []
+		horizontal_speed = self.game.horizontal_speed
 		'''
 		States:
 		- Horizontal distance between bird and nearest pipe (0 to 300 / 10 or 300+)
 		- Vertical distance between bird and nearest pipe (-height / 10 to height / 10)
 		- Bird velocity (-10 / 5 to 20 / 5)
 		'''
-		for horizontal_distance in xrange(0, (300 / 10 + 1) + 1):
-			for vertical_distance in xrange(-self.game.height / 10, (self.game.height / 10) + 1):
+		for horizontal_distance in xrange(-1, (300 / discretize_size) + 1):
+			for vertical_distance in xrange(-self.game.height / discretize_size, (self.game.height / discretize_size) + 1):
 				for velocity in xrange(-10 / 5, (20 / 5) + 1):
 					states.append((horizontal_distance, vertical_distance, velocity))
 
@@ -65,11 +72,11 @@ class FlappyInterface(ModelInterface):
 
 	def get_state(self):
 		next_pipe = self.game.get_next_pipe()
-		distance_to_next_pipe = min(next_pipe.x - self.game.progress, 300 + 10)
+		distance_to_next_pipe = -discretize_size if next_pipe.x - self.game.progress > 300 else (next_pipe.x - self.game.progress)
 		distance_to_pipe_space = 0 if (distance_to_next_pipe > 300) else (self.game.bird.y - next_pipe.space_y)
 		return (
-			int(distance_to_next_pipe) / 10,
-			int(distance_to_pipe_space) / 10,
+			int(distance_to_next_pipe) / discretize_size,
+			int(distance_to_pipe_space) / discretize_size,
 			int(self.game.bird.velocity) / 5
 		)
 
